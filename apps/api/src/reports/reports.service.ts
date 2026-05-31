@@ -384,20 +384,20 @@ export class ReportsService {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-    
+
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
-    const pdfBuffer = await page.pdf({ 
+    const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: {
         top: '20px',
         bottom: '20px',
         left: '20px',
-        right: '20px'
-      }
+        right: '20px',
+      },
     });
-    
+
     await browser.close();
     return Buffer.from(pdfBuffer);
   }
@@ -408,14 +408,17 @@ export class ReportsService {
     const findings = evaluation.findings || [];
 
     // Contamos hallazgos por tipo para penalizar ligeramente cada métrica
-    const structurePenalties = findings.filter((f: any) => f.type === 'STRUCTURE').length * 5;
-    const contentPenalties = findings.filter((f: any) => f.type === 'CONTENT').length * 5;
-    const formatPenalties = findings.filter((f: any) => f.type === 'FORMAT').length * 5;
+    const structurePenalties =
+      findings.filter((f: any) => f.type === 'STRUCTURE').length * 5;
+    const contentPenalties =
+      findings.filter((f: any) => f.type === 'CONTENT').length * 5;
+    const formatPenalties =
+      findings.filter((f: any) => f.type === 'FORMAT').length * 5;
 
     // Métricas de IA y Similitud (Simuladas basadas en la evaluación)
     // El porcentaje de IA suele ser bajo en tesis reales, la similitud depende de las citas.
     const aiPercentage = Math.floor(Math.random() * 15) + 5; // 5% - 20%
-    const similarity = Math.floor(Math.random() * 20) + 2;   // 2% - 22%
+    const similarity = Math.floor(Math.random() * 20) + 2; // 2% - 22%
 
     return {
       structure: Math.max(0, Math.min(100, score - structurePenalties)),

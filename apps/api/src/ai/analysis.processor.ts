@@ -31,7 +31,15 @@ export class AnalysisProcessor extends WorkerHost {
 
       const submission = await this.prisma.submission.findUnique({
         where: { id: submissionId },
-        include: { project: { include: { program: { include: { templates: { where: { isActive: true } } } } } } },
+        include: {
+          project: {
+            include: {
+              program: {
+                include: { templates: { where: { isActive: true } } },
+              },
+            },
+          },
+        },
       });
 
       if (!submission || !submission.project.program.templates[0]) {
@@ -40,18 +48,22 @@ export class AnalysisProcessor extends WorkerHost {
 
       const template = submission.project.program.templates[0];
       const fileUrl = await this.storageService.getFileUrl(submission.fileUrl);
-      
+
       this.logger.log(`📥 Descargando archivo para Gemini...`);
-      const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+      const response = await axios.get(fileUrl, {
+        responseType: 'arraybuffer',
+      });
       const buffer = Buffer.from(response.data);
-      
-      const mimetype = submission.fileUrl.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      
+
+      const mimetype = submission.fileUrl.endsWith('.pdf')
+        ? 'application/pdf'
+        : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
       // ANÁLISIS DIRECTO CON GEMINI (Multimodal)
       const analysis = await this.aiService.analyzeSubmissionMultimodal(
-        buffer, 
-        mimetype, 
-        template.structureJson
+        buffer,
+        mimetype,
+        template.structureJson,
       );
 
       this.logger.log(`💾 Guardando resultados...`);

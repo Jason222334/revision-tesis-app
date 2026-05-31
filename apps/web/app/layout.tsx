@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "Gestión y revisión inteligente de avances de tesis universitarias",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -34,7 +36,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 flex h-screen overflow-hidden`}
         suppressHydrationWarning
       >
-        <NextAuthSessionProvider>
+        <NextAuthSessionProvider session={session}>
           {session?.user && <Sidebar user={session.user as any} />}
           <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8">
             {children}

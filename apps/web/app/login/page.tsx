@@ -19,13 +19,11 @@ export default function LoginPage() {
     const result = await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      callbackUrl: "/dashboard",
     })
 
     if (result?.error) {
       setError("Credenciales inválidas")
-    } else {
-      router.push("/dashboard")
     }
   }
 

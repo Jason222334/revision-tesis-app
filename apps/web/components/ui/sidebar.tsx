@@ -64,13 +64,13 @@ export function Sidebar({ user }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   const filteredItems = sidebarItems.filter((item) => 
-    item.roles.includes(user.role || "")
+    item.roles.includes(user?.role || "")
   )
 
   return (
     <div 
       className={cn(
-        "relative flex flex-col h-screen border-r bg-white transition-all duration-300",
+        "relative flex flex-col h-screen border-r bg-white transition-all duration-300 z-20",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
@@ -81,33 +81,39 @@ export function Sidebar({ user }: SidebarProps) {
         )}
       </div>
 
-      <nav className="flex-1 px-2 py-4 space-y-1">
-        {filteredItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-              pathname === item.href 
-                ? "bg-primary text-primary-foreground" 
-                : "text-muted-foreground hover:bg-muted"
-            )}
-          >
-            <item.icon className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span className="font-medium">{item.title}</span>}
-          </Link>
-        ))}
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                pathname === item.href 
+                  ? "bg-primary text-primary-foreground" 
+                  : "text-muted-foreground hover:bg-muted"
+              )}
+            >
+              <item.icon className="h-5 w-5 shrink-0" />
+              {!isCollapsed && <span className="font-medium">{item.title}</span>}
+            </Link>
+          ))
+        ) : (
+          <div className="px-3 py-2 text-xs text-muted-foreground italic">
+            Sin módulos para el rol: {user?.role || 'N/A'}
+          </div>
+        )}
       </nav>
 
-      <div className="p-2 border-t">
+      <div className="p-2 border-t mt-auto">
         {!isCollapsed && (
           <div className="px-3 py-2 mb-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase">
               Usuario
             </p>
-            <p className="text-sm font-medium truncate">{user.name}</p>
+            <p className="text-sm font-medium truncate">{user?.name || 'Usuario'}</p>
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-              {user.role}
+              {user?.role || 'Sin Rol'}
             </p>
           </div>
         )}

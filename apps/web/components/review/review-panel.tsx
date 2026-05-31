@@ -81,7 +81,7 @@ export function ReviewPanel({ submissionId, documentUrl, evaluation }: ReviewPan
                 <br/><br/>
                 <strong>Tip:</strong> Sube tu avance en formato <strong>PDF</strong> para verlo aquí lado a lado.
               </p>
-              <Button variant="outline" className="mt-6" asChild>
+              <Button variant="outline" className="mt-6">
                 <a href={documentUrl} download target="_blank" rel="noreferrer">Descargar Archivo</a>
               </Button>
             </div>

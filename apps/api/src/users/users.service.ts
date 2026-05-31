@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,12 +14,13 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const fullName = createUserDto.lastName 
+    const fullName = createUserDto.lastName
       ? `${createUserDto.name} ${createUserDto.lastName}`
       : createUserDto.name;
 
     // Generar email si no viene (basado en nombre y timestamp para unicidad)
-    const email = createUserDto.email || 
+    const email =
+      createUserDto.email ||
       `${createUserDto.name.toLowerCase().replace(/\s+/g, '')}${Date.now().toString().slice(-4)}@unitru.edu.pe`;
 
     const existingUser = await this.prisma.user.findUnique({

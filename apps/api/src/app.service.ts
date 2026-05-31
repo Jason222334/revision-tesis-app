@@ -11,21 +11,26 @@ export class AppService {
   }
 
   async getStats() {
-    const [totalSubmissions, avgEvaluation, pendingSubmissions] = await Promise.all([
-      this.prisma.submission.count(),
-      this.prisma.evaluation.aggregate({
-        _avg: {
-          overallScore: true,
-        },
-      }),
-      this.prisma.submission.count({
-        where: {
-          status: {
-            in: [SubmissionStatus.PENDING, SubmissionStatus.ANALYZING, SubmissionStatus.REVIEWING],
+    const [totalSubmissions, avgEvaluation, pendingSubmissions] =
+      await Promise.all([
+        this.prisma.submission.count(),
+        this.prisma.evaluation.aggregate({
+          _avg: {
+            overallScore: true,
           },
-        },
-      }),
-    ]);
+        }),
+        this.prisma.submission.count({
+          where: {
+            status: {
+              in: [
+                SubmissionStatus.PENDING,
+                SubmissionStatus.ANALYZING,
+                SubmissionStatus.REVIEWING,
+              ],
+            },
+          },
+        }),
+      ]);
 
     // Get recent pending reviews for the dashboard list
     const recentPending = await this.prisma.submission.findMany({

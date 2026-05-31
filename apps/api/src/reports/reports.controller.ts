@@ -21,14 +21,15 @@ export class ReportsController {
     @Param('submissionId') submissionId: string,
     @Res() res: Response,
   ) {
-    const pdfBuffer = await this.reportsService.generateReviewReport(submissionId);
-    
+    const pdfBuffer =
+      await this.reportsService.generateReviewReport(submissionId);
+
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="reporte-revision-${submissionId}.pdf"`,
       'Content-Length': pdfBuffer.length,
     });
-    
+
     res.end(pdfBuffer);
   }
 }

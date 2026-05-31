@@ -23,15 +23,17 @@ export class AIService {
       return buffer.toString('utf8').substring(0, 10000);
     } catch (error) {
       this.logger.error(`Error en extracción Word: ${error.message}`);
-      return "Documento académico";
+      return 'Documento académico';
     }
   }
 
   async analyzeTemplateMultimodal(buffer: Buffer, mimetype: string) {
-    this.logger.log('🚀 Google AI 2026: Analizando estructura con Gemini 2.5 Flash...');
-    
+    this.logger.log(
+      '🚀 Google AI 2026: Analizando estructura con Gemini 2.5 Flash...',
+    );
+
     // MIGRACIÓN: Usamos gemini-2.5-flash (el estándar actual)
-    const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       Eres un experto revisor académico. Analiza el documento de GUÍA DE TESIS adjunto y extrae su estructura técnica.
@@ -53,14 +55,17 @@ export class AIService {
         {
           inlineData: {
             data: buffer.toString('base64'),
-            mimeType: mimetype
-          }
-        }
+            mimeType: mimetype,
+          },
+        },
       ]);
 
       const response = await result.response;
       const text = response.text();
-      const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const jsonStr = text
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
       return JSON.parse(jsonStr);
     } catch (error) {
       this.logger.error(`Error crítico en Gemini 2.5: ${error.message}`);
@@ -68,10 +73,16 @@ export class AIService {
     }
   }
 
-  async analyzeSubmissionMultimodal(submissionBuffer: Buffer, mimetype: string, templateStructure: any) {
-    this.logger.log('🚀 Google AI 2026: Evaluando tesis con Gemini 2.5 Flash...');
-    
-    const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  async analyzeSubmissionMultimodal(
+    submissionBuffer: Buffer,
+    mimetype: string,
+    templateStructure: any,
+  ) {
+    this.logger.log(
+      '🚀 Google AI 2026: Evaluando tesis con Gemini 2.5 Flash...',
+    );
+
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       Actúa como un revisor de tesis experto y sumamente detallista. Evalúa el avance adjunto comparándolo minuciosamente con este PATRÓN:
@@ -108,17 +119,67 @@ export class AIService {
         {
           inlineData: {
             data: submissionBuffer.toString('base64'),
-            mimeType: mimetype
-          }
-        }
+            mimeType: mimetype,
+          },
+        },
       ]);
 
       const response = await result.response;
       const text = response.text();
-      const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const jsonStr = text
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
       return JSON.parse(jsonStr);
     } catch (error) {
       this.logger.error(`Error en evaluación Gemini 2.5: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async generateFullThesisDraft(
+    title: string,
+    templateStructure: any,
+  ): Promise<string> {
+    this.logger.log(
+      `🚀 Google AI 2026: Generando borrador completo de tesis: "${title}"`,
+    );
+    this.logger.log(
+      `Estructura base: ${JSON.stringify(templateStructure).substring(0, 200)}...`,
+    );
+
+    // Nota: Empíricamente se ha comprobado que la API Key actual SOLO tiene acceso a gemini-2.5-flash.
+    // Usar cualquier otro modelo (como gemini-pro o gemini-1.5-pro) resultará en un error 404 Not Found.
+    const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const prompt = `
+      Eres un asistente de redacción académica experto. Tu tarea es redactar un borrador de tesis COMPLETO, PROFESIONAL y DETALLADO.
+      
+      TÍTULO DE LA TESIS: "${title}"
+      ESTRUCTURA REQUERIDA (BASADA EN EL DOCUMENTO PATRÓN):
+      ${JSON.stringify(templateStructure)}
+
+      INSTRUCCIONES CRÍTICAS DE REDACCIÓN:
+      1. EXTENSIÓN OBLIGATORIA: El documento debe ser extremadamente detallado, cubriendo entre 10 y 15 páginas. NO RESUMAS. Expande cada sección al máximo con bases teóricas, marco conceptual extenso y detalles metodológicos profundos.
+      2. El borrador debe cubrir detalladamente:
+         - CAPÍTULO I: INTRODUCCIÓN (Realidad problemática extensa, justificación detallada, objetivos precisos y antecedentes a profundidad).
+         - CAPÍTULO II: MÉTODO (Tipo, diseño, población, muestra, variables, instrumentos, todos definidos con citas teóricas).
+         - CAPÍTULO III: ASPECTOS ADMINISTRATIVOS.
+      3. Utiliza un lenguaje formal, técnico y propio de una tesis universitaria.
+      4. Desarrolla párrafos largos y analíticos. Cada subsección debe tener múltiples párrafos (mínimo 300-500 palabras por subsección).
+      5. Incluye numerosas citas ficticias en formato APA 7 para dar realismo (ej: Smith, 2023; Pérez & Gómez, 2022).
+      6. IMPORTANTE: Prohibido dejar espacios en blanco grandes o respuestas breves. Si la estructura tiene 10 puntos, cada punto debe tener al menos una página de desarrollo teórico o práctico.
+      7. Estructura el resultado con títulos claros marcados con # o ##.
+
+      RESPONDE ÚNICAMENTE CON EL TEXTO DE LA TESIS EN FORMATO MARKDOWN.
+    `;
+
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      this.logger.error(`Error en generación de tesis: ${error.message}`);
       throw error;
     }
   }

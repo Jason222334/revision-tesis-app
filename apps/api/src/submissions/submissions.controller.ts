@@ -1,13 +1,13 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  UseInterceptors, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseInterceptors,
   UploadedFile,
   Patch,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SubmissionsService } from './submissions.service';
@@ -39,10 +39,7 @@ export class SubmissionsController {
   }
 
   @Patch(':id/status')
-  async updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: any
-  ) {
+  async updateStatus(@Param('id') id: string, @Body('status') status: any) {
     return this.submissionsService.updateStatus(id, status);
   }
 }

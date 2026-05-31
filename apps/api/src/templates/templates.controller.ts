@@ -1,15 +1,15 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Param, 
-  Delete, 
-  UseGuards, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
   Query,
   UseInterceptors,
   UploadedFile,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TemplatesService } from './templates.service';
@@ -24,7 +24,7 @@ export class TemplatesController {
   constructor(
     private readonly templatesService: TemplatesService,
     private readonly storageService: StorageService,
-    private readonly aiService: AIService
+    private readonly aiService: AIService,
   ) {}
 
   @Post('upload')
@@ -32,24 +32,27 @@ export class TemplatesController {
   async uploadTemplate(
     @UploadedFile() file: Express.Multer.File,
     @Body('name') name: string,
-    @Body('programId') programId: string
+    @Body('programId') programId: string,
   ) {
     this.logger.log(`Uploading and analyzing template: ${name}`);
 
     const fileName = await this.storageService.uploadFile(file, 'templates');
     const fileUrl = await this.storageService.getFileUrl(fileName);
-    
+
     const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
     const buffer = Buffer.from(response.data);
-    
+
     // ANÁLISIS MULTIMODAL PARA LA PLANTILLA TAMBIÉN
-    const analysis = await this.aiService.analyzeTemplateMultimodal(buffer, file.mimetype);
-    
+    const analysis = await this.aiService.analyzeTemplateMultimodal(
+      buffer,
+      file.mimetype,
+    );
+
     return this.templatesService.create({
       name,
       programId,
       fileUrl: fileName,
-      structureJson: analysis
+      structureJson: analysis,
     });
   }
 

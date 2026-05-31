@@ -18,14 +18,17 @@ export class SubmissionsService {
   async uploadAndProcess(file: Express.Multer.File, projectId: string) {
     const project = await this.prisma.thesisProject.findUnique({
       where: { id: projectId },
-      include: { submissions: true }
+      include: { submissions: true },
     });
 
     if (!project) {
       throw new NotFoundException('Project not found');
     }
 
-    const fileName = await this.storageService.uploadFile(file, `submissions/${projectId}`);
+    const fileName = await this.storageService.uploadFile(
+      file,
+      `submissions/${projectId}`,
+    );
 
     const version = project.submissions.length + 1;
     const submission = await this.prisma.submission.create({
@@ -62,13 +65,13 @@ export class SubmissionsService {
           include: {
             program: true,
             student: true,
-          }
+          },
         },
         evaluation: {
           include: {
-            findings: true
-          }
-        }
+            findings: true,
+          },
+        },
       },
     });
 

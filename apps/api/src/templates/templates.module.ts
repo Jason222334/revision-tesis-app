@@ -8,5 +8,6 @@ import { AIModule } from '../ai/ai.module';
   imports: [StorageModule, AIModule],
   controllers: [TemplatesController],
   providers: [TemplatesService],
+  exports: [TemplatesService],
 })
 export class TemplatesModule {}

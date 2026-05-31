@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials"
 import { AuthResponseSchema } from "@revision-tesis/types"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -29,7 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.role = (user as any).role
         token.id = (user as any).id
@@ -38,7 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (token && session.user) {
         (session.user as any).role = token.role;
         (session.user as any).id = token.id;
         (session as any).accessToken = token.accessToken;

@@ -27,7 +27,10 @@ export class StorageService {
       }
       console.log('✅ MinIO Storage initialized');
     } catch (error) {
-      console.error('❌ MinIO Storage connection failed. The application will continue but file uploads may fail:', error.message);
+      console.error(
+        '❌ MinIO Storage connection failed. The application will continue but file uploads may fail:',
+        error.message,
+      );
     }
   }
 
@@ -41,16 +44,16 @@ export class StorageService {
 
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
     const fileName = `${folder}/${Date.now()}-${file.originalname}`;
-    
+
     try {
       await this.minioClient.putObject(
         this.bucketName,
         fileName,
         file.buffer,
         file.size,
-        { 'Content-Type': file.mimetype }
+        { 'Content-Type': file.mimetype },
       );
-      
+
       return fileName;
     } catch (error) {
       throw new InternalServerErrorException('Error uploading file to storage');
@@ -64,5 +67,24 @@ export class StorageService {
   // Alias para compatibilidad con otras partes del sistema
   async getFileUrl(fileName: string): Promise<string> {
     return this.getPresignedUrl(fileName);
+  }
+
+  async downloadFile(fileName: string): Promise<Buffer> {
+    try {
+      const dataStream = await this.minioClient.getObject(
+        this.bucketName,
+        fileName,
+      );
+      const chunks: Buffer[] = [];
+      return new Promise((resolve, reject) => {
+        dataStream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+        dataStream.on('error', (err) => reject(err));
+        dataStream.on('end', () => resolve(Buffer.concat(chunks)));
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error downloading file from storage',
+      );
+    }
   }
 }
