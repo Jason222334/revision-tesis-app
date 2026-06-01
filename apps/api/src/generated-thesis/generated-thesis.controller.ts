@@ -12,6 +12,6 @@ export class GeneratedThesisController {
 
   @Post()
   generate(@Body() body: { title: string }, @Request() req) {
-    return this.generatedThesisService.generate(body.title, req.user.userId);
+    return this.generatedThesisService.generate(body.title, req.user.id);
   }
 }

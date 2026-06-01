@@ -48,15 +48,31 @@ export class AIService {
     `;
 
     try {
-      const result = await model.generateContent([
-        prompt,
-        {
-          inlineData: {
-            data: buffer.toString('base64'),
-            mimeType: mimetype,
-          },
-        },
-      ]);
+      // Implementamos un sistema de reintentos para manejar errores 503 (Servicio Saturado)
+      let result;
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          result = await model.generateContent([
+            prompt,
+            {
+              inlineData: {
+                data: buffer.toString('base64'),
+                mimeType: mimetype,
+              },
+            },
+          ]);
+          break; // Si tiene éxito, salimos del bucle
+        } catch (err: any) {
+          if (err.status === 503 && retries > 1) {
+            this.logger.warn(`Google AI saturado (503). Reintentando en 2s... (Intentos restantes: ${retries - 1})`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            retries--;
+          } else {
+            throw err;
+          }
+        }
+      }
 
       const response = await result.response;
       const text = response.text();
