@@ -10,7 +10,6 @@ export class AIService {
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-    // Usamos el SDK oficial con los modelos vigentes en 2026
     this.genAI = new GoogleGenerativeAI(apiKey || '');
   }
 
@@ -29,11 +28,10 @@ export class AIService {
 
   async analyzeTemplateMultimodal(buffer: Buffer, mimetype: string) {
     this.logger.log(
-      '🚀 Google AI 2026: Analizando estructura con Gemini 2.5 Flash...',
+      '🚀 Google AI: Analizando estructura con Gemini 1.5 Flash...',
     );
 
-    // MIGRACIÓN: Usamos gemini-2.5-flash (el estándar actual)
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
       Eres un experto revisor académico. Analiza el documento de GUÍA DE TESIS adjunto y extrae su estructura técnica.
@@ -68,7 +66,7 @@ export class AIService {
         .trim();
       return JSON.parse(jsonStr);
     } catch (error) {
-      this.logger.error(`Error crítico en Gemini 2.5: ${error.message}`);
+      this.logger.error(`Error crítico en Gemini: ${error.message}`);
       throw error;
     }
   }
@@ -79,10 +77,10 @@ export class AIService {
     templateStructure: any,
   ) {
     this.logger.log(
-      '🚀 Google AI 2026: Evaluando tesis con Gemini 2.5 Flash...',
+      '🚀 Google AI: Evaluando tesis con Gemini 1.5 Flash...',
     );
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
       Actúa como un revisor de tesis experto y sumamente detallista. Evalúa el avance adjunto comparándolo minuciosamente con este PATRÓN:
@@ -132,7 +130,7 @@ export class AIService {
         .trim();
       return JSON.parse(jsonStr);
     } catch (error) {
-      this.logger.error(`Error en evaluación Gemini 2.5: ${error.message}`);
+      this.logger.error(`Error en evaluación Gemini: ${error.message}`);
       throw error;
     }
   }
@@ -142,15 +140,10 @@ export class AIService {
     templateStructure: any,
   ): Promise<string> {
     this.logger.log(
-      `🚀 Google AI 2026: Generando borrador completo de tesis: "${title}"`,
-    );
-    this.logger.log(
-      `Estructura base: ${JSON.stringify(templateStructure).substring(0, 200)}...`,
+      `🚀 Google AI: Generando borrador completo de tesis: "${title}"`,
     );
 
-    // Nota: Empíricamente se ha comprobado que la API Key actual SOLO tiene acceso a gemini-2.5-flash.
-    // Usar cualquier otro modelo (como gemini-pro o gemini-1.5-pro) resultará en un error 404 Not Found.
-    const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
       Eres un asistente de redacción académica experto. Tu tarea es redactar un borrador de tesis COMPLETO, PROFESIONAL y DETALLADO.
