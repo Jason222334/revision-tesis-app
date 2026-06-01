@@ -111,6 +111,9 @@ export class StorageService implements OnModuleInit {
         })
       );
       
+      if (!response.Body) {
+        throw new InternalServerErrorException('Empty response body from storage');
+      }
       const byteArray = await response.Body.transformToByteArray();
       return Buffer.from(byteArray);
     } catch (error) {
