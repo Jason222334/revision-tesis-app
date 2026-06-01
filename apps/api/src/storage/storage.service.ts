@@ -8,14 +8,16 @@ export class StorageService {
   private bucketName: string;
 
   constructor(private configService: ConfigService) {
+    const useSSL = this.configService.get('MINIO_USE_SSL') === 'true' || this.configService.get('NODE_ENV') === 'production';
     this.minioClient = new Minio.Client({
       endPoint: this.configService.get('MINIO_ENDPOINT') || 'localhost',
-      port: Number(this.configService.get('MINIO_PORT')) || 9000,
-      useSSL: false,
+      port: Number(this.configService.get('MINIO_PORT')) || (useSSL ? 443 : 9000),
+      useSSL: useSSL,
       accessKey: this.configService.get('MINIO_ACCESS_KEY') || 'minioadmin',
       secretKey: this.configService.get('MINIO_SECRET_KEY') || 'minioadmin',
+      region: this.configService.get('MINIO_REGION'),
     });
-    this.bucketName = 'thesis-documents';
+    this.bucketName = this.configService.get('MINIO_BUCKET') || 'thesis-documents';
     this.initializeStorage();
   }
 
