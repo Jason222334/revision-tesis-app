@@ -14,10 +14,10 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() data: any) {
-    // Por ahora simplificado sin Auth estricto para que puedas probar
-    return this.projectsService.create(data);
+  async create(@Body() data: any, @Request() req: any) {
+    return this.projectsService.create(data, req.user.id);
   }
 
   @Get()

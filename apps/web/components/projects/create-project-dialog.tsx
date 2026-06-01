@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { 
   Dialog, 
   DialogContent, 
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Plus, Loader2 } from "lucide-react"
 
 export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: () => void }) {
+  const { data: session } = useSession()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [programs, setPrograms] = useState<any[]>([])
@@ -42,7 +44,10 @@ export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: ()
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${(session as any)?.accessToken}`
+        },
         body: JSON.stringify({ title, programId }),
       })
 
@@ -60,11 +65,13 @@ export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: ()
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" /> Nuevo Proyecto
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" /> Nuevo Proyecto
+          </Button>
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Registrar Nuevo Proyecto de Tesis</DialogTitle>

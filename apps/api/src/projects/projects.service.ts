@@ -5,12 +5,12 @@ import { PrismaService } from '../prisma.service';
 export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: any) {
+  async create(data: any, studentId: string) {
     return this.prisma.thesisProject.create({
       data: {
         title: data.title,
         programId: data.programId,
-        studentId: '2e95da01-5862-40e4-8057-01ea2ced64a6',
+        studentId: studentId,
       },
     });
   }
