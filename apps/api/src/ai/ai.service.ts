@@ -31,7 +31,7 @@ export class AIService {
       '🚀 Google AI: Analizando estructura con Gemini 1.5 Flash...',
     );
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       Eres un experto revisor académico. Analiza el documento de GUÍA DE TESIS adjunto y extrae su estructura técnica.
@@ -80,7 +80,7 @@ export class AIService {
       '🚀 Google AI: Evaluando tesis con Gemini 1.5 Flash...',
     );
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       Actúa como un revisor de tesis experto y sumamente detallista. Evalúa el avance adjunto comparándolo minuciosamente con este PATRÓN:
@@ -143,7 +143,7 @@ export class AIService {
       `🚀 Google AI: Generando borrador completo de tesis: "${title}"`,
     );
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       Eres un asistente de redacción académica experto. Tu tarea es redactar un borrador de tesis COMPLETO, PROFESIONAL y DETALLADO.
