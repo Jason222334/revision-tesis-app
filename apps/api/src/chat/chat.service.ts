@@ -13,6 +13,7 @@ export class ChatService {
 
   async getChatResponse(message: string) {
     try {
+      this.logger.log('Obteniendo estadísticas...');
       // 1. Obtener estadísticas del sistema
       const totalProjects = await this.prisma.thesisProject.count();
       const totalSubmissions = await this.prisma.submission.count();
@@ -25,6 +26,8 @@ export class ChatService {
       const totalUsers = await this.prisma.user.count();
       const totalPrograms = await this.prisma.program.count();
 
+      this.logger.log('Estadísticas obtenidas. Generando respuesta con IA...');
+
       const statsContext = `
         Estadísticas actuales del sistema de Revisión de Tesis:
         - Total de proyectos de tesis: ${totalProjects}
@@ -36,7 +39,9 @@ export class ChatService {
       `;
 
       // 2. Usar AIService para generar la respuesta
-      return await this.aiService.chat(message, statsContext);
+      const response = await this.aiService.chat(message, statsContext);
+      this.logger.log('Respuesta de IA generada.');
+      return response;
     } catch (error) {
       this.logger.error(`Error en ChatService: ${error.message}`);
       return 'Lo siento, en este momento no puedo procesar tu pregunta. Por favor intenta más tarde.';

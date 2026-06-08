@@ -43,8 +43,12 @@ export function Chatbot() {
     setInput("");
     setIsLoading(true);
 
+    console.log("Enviando mensaje al chatbot:", messageToSend);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat`;
+      console.log("URL de la API:", apiUrl);
+      
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,12 +57,18 @@ export function Chatbot() {
         body: JSON.stringify({ message: messageToSend }),
       });
 
+      if (!res.ok) {
+        throw new Error(`Error en la respuesta: ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
+      console.log("Respuesta recibida:", data);
       setMessages([...newMessages, { role: "bot", content: data.response }]);
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error en chatbot:", error);
       setMessages([
         ...newMessages,
-        { role: "bot", content: "Hubo un error al conectar con el asistente." },
+        { role: "bot", content: `Error: ${error.message || "No se pudo conectar con el asistente."}` },
       ]);
     } finally {
       setIsLoading(false);
