@@ -44,15 +44,20 @@ export function Chatbot() {
     setIsLoading(true);
 
     console.log("Enviando mensaje al chatbot:", messageToSend);
+    console.log("Estado de la sesión actual:", session);
+    
     try {
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat`;
       console.log("URL de la API:", apiUrl);
       
+      const token = (session as any)?.accessToken || (session as any)?.user?.accessToken;
+      console.log("Token utilizado:", token ? "Token presente" : "Token ausente/undefined");
+
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ message: messageToSend }),
       });
