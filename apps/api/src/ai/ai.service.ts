@@ -216,12 +216,29 @@ export class AIService {
     `;
 
     try {
-      const result = await model.generateContent(prompt);
+      let result;
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          result = await model.generateContent(prompt);
+          break;
+        } catch (err: any) {
+          if (err.status === 503 && retries > 1) {
+            this.logger.warn(`Google AI saturado (503) en Chat. Reintentando en 2s... (Intentos restantes: ${retries - 1})`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            retries--;
+          } else {
+            throw err;
+          }
+        }
+      }
+      
       const response = await result.response;
       return response.text();
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error en Gemini Chat: ${error.message}`);
-      return 'Hubo un error al procesar tu solicitud con la IA.';
+      return 'El servicio de IA está experimentando alta demanda en este momento. Por favor, intenta de nuevo en unos segundos.';
     }
   }
 }
+
