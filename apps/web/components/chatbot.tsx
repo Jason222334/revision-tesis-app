@@ -63,6 +63,9 @@ export function Chatbot() {
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("Tu sesión ha expirado o es inválida. Por favor, CIERRA SESIÓN y vuelve a ingresar para usar el Chatbot.");
+        }
         throw new Error(`Error en la respuesta: ${res.status} ${res.statusText}`);
       }
 
