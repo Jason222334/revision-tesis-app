@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 
 import { Sidebar } from "@/components/ui/sidebar"
 import { auth } from "@/auth"
+import { Chatbot } from "@/components/chatbot";
 
 export const metadata: Metadata = {
   title: "Sistema de Revisión de Tesis con IA",
@@ -41,6 +42,7 @@ export default async function RootLayout({
           <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8">
             {children}
           </main>
+          <Chatbot />
         </NextAuthSessionProvider>
       </body>
     </html>

@@ -14,6 +14,7 @@ import { SubmissionsModule } from './submissions/submissions.module';
 import { AIModule } from './ai/ai.module';
 import { ReportsModule } from './reports/reports.module';
 import { GeneratedThesisModule } from './generated-thesis/generated-thesis.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { GeneratedThesisModule } from './generated-thesis/generated-thesis.modul
     AIModule,
     ReportsModule,
     GeneratedThesisModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

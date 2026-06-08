@@ -192,4 +192,31 @@ export class AIService {
       throw error;
     }
   }
+
+  async chat(message: string, context: string): Promise<string> {
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `
+      Eres un asistente virtual del Sistema de Revisión de Tesis. 
+      Tu objetivo es responder preguntas sobre el sistema y su estado actual de forma amable y concisa.
+      
+      CONTEXTO DEL SISTEMA:
+      ${context}
+      
+      PREGUNTA DEL USUARIO:
+      ${message}
+      
+      Responde de forma natural. Si te preguntan sobre estadísticas, usa el contexto proporcionado.
+      Si no sabes la respuesta o no tiene que ver con el sistema, indícalo amablemente.
+    `;
+
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      this.logger.error(`Error en Gemini Chat: ${error.message}`);
+      return 'Hubo un error al procesar tu solicitud con la IA.';
+    }
+  }
 }

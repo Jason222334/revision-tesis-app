@@ -1,0 +1,179 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { MessageCircle, X, Send, Mic, MicOff, Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+
+interface Message {
+  role: "user" | "bot";
+  content: string;
+}
+
+export function Chatbot() {
+  const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "bot", content: "¡Hola! Soy tu asistente de tesis. ¿En qué puedo ayudarte hoy?" },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo(0, scrollRef.current.scrollHeight);
+    }
+  }, [messages]);
+
+  if (!session) return null;
+
+  const handleSend = async (text?: string) => {
+    const messageToSend = text || input;
+    if (!messageToSend.trim()) return;
+
+    const newMessages = [...messages, { role: "user", content: messageToSend } as Message];
+    setMessages(newMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${(session as any).accessToken}`,
+        },
+        body: JSON.stringify({ message: messageToSend }),
+      });
+
+      const data = await res.json();
+      setMessages([...newMessages, { role: "bot", content: data.response }]);
+    } catch (error) {
+      setMessages([
+        ...newMessages,
+        { role: "bot", content: "Hubo un error al conectar con el asistente." },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleListening = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Tu navegador no soporta reconocimiento de voz.");
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.lang = "es-ES";
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      handleSend(transcript);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
+  const speak = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-ES";
+    window.speechSynthesis.speak(utterance);
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+      {isOpen ? (
+        <Card className="w-80 h-96 flex flex-col shadow-2xl border-primary/20 animate-in slide-in-from-bottom-5">
+          <div className="p-3 bg-primary text-primary-foreground flex justify-between items-center rounded-t-lg">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              <span className="font-semibold text-sm">Asistente Tesis</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <ScrollArea className="flex-1 p-4" viewportRef={scrollRef}>
+            <div className="space-y-4">
+              {messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] p-2 rounded-lg text-sm relative group ${
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground"
+                    }`}
+                  >
+                    {m.content}
+                    {m.role === "bot" && (
+                      <button
+                        onClick={() => speak(m.content)}
+                        className="absolute -right-6 top-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted p-2 rounded-lg text-sm animate-pulse">Escribiendo...</div>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+
+          <div className="p-3 border-t flex gap-2">
+            <Input
+              placeholder="Pregunta algo..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              className="text-xs"
+            />
+            <Button size="icon" className="h-9 w-9" onClick={() => handleSend()}>
+              <Send className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={isListening ? "destructive" : "outline"}
+              size="icon"
+              className="h-9 w-9"
+              onClick={toggleListening}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
+          </div>
+        </Card>
+      ) : (
+        <Button
+          onClick={() => setIsOpen(true)}
+          size="icon"
+          className="h-12 w-12 rounded-full shadow-lg"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </Button>
+      )}
+    </div>
+  );
+}
