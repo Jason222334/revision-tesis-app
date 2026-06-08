@@ -22,13 +22,15 @@ export function Chatbot() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo(0, scrollRef.current.scrollHeight);
-    }
-  }, [messages]);
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   if (!session) return null;
 
@@ -110,7 +112,7 @@ export function Chatbot() {
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 p-4" viewportRef={scrollRef}>
+          <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.map((m, i) => (
                 <div
@@ -141,6 +143,7 @@ export function Chatbot() {
                   <div className="bg-muted p-2 rounded-lg text-sm animate-pulse">Escribiendo...</div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
