@@ -14,17 +14,22 @@ export class ChatService {
   async getChatResponse(message: string) {
     try {
       this.logger.log('Obteniendo estadísticas...');
-      // 1. Obtener estadísticas del sistema
-      const totalProjects = await this.prisma.thesisProject.count();
-      const totalSubmissions = await this.prisma.submission.count();
-      const approvedSubmissions = await this.prisma.submission.count({
-        where: { status: 'APPROVED' },
-      });
-      const pendingSubmissions = await this.prisma.submission.count({
-        where: { status: 'PENDING' },
-      });
-      const totalUsers = await this.prisma.user.count();
-      const totalPrograms = await this.prisma.program.count();
+      // 1. Obtener estadísticas del sistema en paralelo
+      const [
+        totalProjects,
+        totalSubmissions,
+        approvedSubmissions,
+        pendingSubmissions,
+        totalUsers,
+        totalPrograms,
+      ] = await Promise.all([
+        this.prisma.thesisProject.count(),
+        this.prisma.submission.count(),
+        this.prisma.submission.count({ where: { status: 'APPROVED' } }),
+        this.prisma.submission.count({ where: { status: 'PENDING' } }),
+        this.prisma.user.count(),
+        this.prisma.program.count(),
+      ]);
 
       this.logger.log('Estadísticas obtenidas. Generando respuesta con IA...');
 
