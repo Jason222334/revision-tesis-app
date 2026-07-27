@@ -26,7 +26,8 @@ export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: ()
 
   useEffect(() => {
     if (open) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      fetch(`${apiUrl}/programs`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -34,6 +35,7 @@ export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: ()
             if (data.length > 0) setProgramId(data[0].id)
           }
         })
+        .catch(err => console.error("Error cargando programas", err))
     }
   }, [open])
 
@@ -42,7 +44,8 @@ export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: ()
     setLoading(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const response = await fetch(`${apiUrl}/projects`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -65,11 +68,13 @@ export function CreateProjectDialog({ onProjectCreated }: { onProjectCreated: ()
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" /> Nuevo Proyecto
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" /> Nuevo Proyecto
+          </Button>
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Registrar Nuevo Proyecto de Tesis</DialogTitle>

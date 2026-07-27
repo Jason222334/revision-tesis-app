@@ -34,7 +34,8 @@ export function UploadSubmissionDialog({
     formData.append("projectId", projectId)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/submissions/upload`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const response = await fetch(`${apiUrl}/submissions/upload`, {
         method: "POST",
         body: formData,
       })

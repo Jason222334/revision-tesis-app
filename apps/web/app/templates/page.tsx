@@ -92,7 +92,7 @@ export default function TemplatesPage() {
                     <CardDescription>{template.program?.name}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-muted-foreground mb-4">
+                    <div className="text-sm text-muted-foreground mb-4" suppressHydrationWarning>
                       Creado el: {new Date(template.createdAt).toLocaleDateString()}
                     </div>
                     <div className="flex gap-2">

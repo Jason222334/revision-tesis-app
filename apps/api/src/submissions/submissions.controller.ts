@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
+  Delete,
   Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -41,5 +42,11 @@ export class SubmissionsController {
   @Patch(':id/status')
   async updateStatus(@Param('id') id: string, @Body('status') status: any) {
     return this.submissionsService.updateStatus(id, status);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    this.logger.log(`Deleting submission with ID ${id}`);
+    return this.submissionsService.delete(id);
   }
 }

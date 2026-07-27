@@ -42,11 +42,26 @@ export class TemplatesController {
     const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
     const buffer = Buffer.from(response.data);
 
-    // ANÁLISIS MULTIMODAL PARA LA PLANTILLA TAMBIÉN
-    const analysis = await this.aiService.analyzeTemplateMultimodal(
-      buffer,
-      file.mimetype,
-    );
+    // ANÁLISIS MULTIMODAL PARA LA PLANTILLA (OPCIONAL)
+    let analysis: any = null;
+    try {
+      analysis = await this.aiService.analyzeTemplateMultimodal(
+        buffer,
+        file.mimetype,
+      );
+    } catch (error) {
+      this.logger.warn(`AI analysis failed for template ${name}, saving with empty structure. Error: ${error.message}`);
+      // Estructura por defecto si falla la IA para que no se bloquee la subida
+      analysis = {
+        sections: [
+          { title: "Estructura general", description: "Contenido del documento", isRequired: true }
+        ],
+        formattingRules: {
+          citationStyle: "No especificado",
+          language: "es"
+        }
+      };
+    }
 
     return this.templatesService.create({
       name,

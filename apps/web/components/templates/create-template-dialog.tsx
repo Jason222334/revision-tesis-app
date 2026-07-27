@@ -27,7 +27,8 @@ export function CreateTemplateDialog() {
   useEffect(() => {
     if (open) {
       // Cargar programas disponibles
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      fetch(`${apiUrl}/programs`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -50,7 +51,8 @@ export function CreateTemplateDialog() {
     formData.append("programId", programId)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/templates/upload`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const response = await fetch(`${apiUrl}/templates/upload`, {
         method: "POST",
         body: formData,
       })
@@ -95,6 +97,16 @@ export function CreateTemplateDialog() {
               onChange={(e) => setName(e.target.value)}
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="university">Universidad</Label>
+            <select 
+              id="university"
+              className="w-full border rounded-md p-2 text-sm bg-background font-medium"
+              defaultValue="unt"
+            >
+              <option value="unt">Universidad Nacional de Trujillo</option>
+            </select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="program">Programa Académico</Label>

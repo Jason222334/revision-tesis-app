@@ -12,7 +12,8 @@ import {
   AlertCircle, 
   Loader2,
   RefreshCw,
-  Search
+  Search,
+  Trash2
 } from "lucide-react"
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog"
 import { BatchUploadDialog } from "@/components/projects/batch-upload-dialog"
@@ -29,7 +30,8 @@ export default function ProjectsPage() {
     else setIsRefreshing(true)
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const res = await fetch(`${apiUrl}/projects`)
       if (res.ok) {
         const data = await res.json()
         setProjects(data)
@@ -45,6 +47,28 @@ export default function ProjectsPage() {
   useEffect(() => {
     fetchProjects()
   }, [fetchProjects])
+
+  const handleDeleteSubmission = async (submissionId: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este avance? Esta acción no se puede deshacer y borrará el archivo y todos los análisis relacionados.")) {
+      return
+    }
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const res = await fetch(`${apiUrl}/submissions/${submissionId}`, {
+        method: "DELETE",
+      })
+
+      if (res.ok) {
+        fetchProjects(false)
+      } else {
+        alert("No se pudo eliminar el avance")
+      }
+    } catch (error) {
+      console.error("Error al eliminar el avance:", error)
+      alert("Error de conexión al eliminar el avance")
+    }
+  }
 
   // Polling: Si hay algún proyecto analizando, refrescar cada 5 segundos
   useEffect(() => {
@@ -146,7 +170,6 @@ export default function ProjectsPage() {
                                   </div>
                                   <div>
                                     <p className="text-sm font-bold">Versión {sub.version}</p>
-                                    <p className="text-[10px] text-muted-foreground uppercase font-medium">{new Date(sub.submittedAt).toLocaleString()}</p>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -168,6 +191,15 @@ export default function ProjectsPage() {
                                       VER REVISIÓN <Search className="h-3 w-3" />
                                     </Link>
                                   )}
+
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDeleteSubmission(sub.id)}
+                                    className="rounded-full gap-1 font-bold text-xs shadow-sm bg-red-600 hover:bg-red-700"
+                                  >
+                                    ELIMINAR <Trash2 className="h-3 w-3" />
+                                  </Button>
                                 </div>
                               </div>
                             ))}

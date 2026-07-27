@@ -47,7 +47,8 @@ export function Chatbot() {
     console.log("Estado de la sesión actual:", session);
     
     try {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat`;
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+      const apiUrl = `${baseUrl}/chat`;
       console.log("URL de la API:", apiUrl);
       
       const token = (session as any)?.accessToken || (session as any)?.user?.accessToken;

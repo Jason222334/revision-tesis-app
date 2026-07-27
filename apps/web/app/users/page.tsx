@@ -147,11 +147,13 @@ export default function UsersPage() {
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger render={
-            <Button className="gap-2">
-              <UserPlus className="h-4 w-4" /> Nuevo Usuario
-            </Button>
-          } />
+          <DialogTrigger
+            render={
+              <Button className="gap-2">
+                <UserPlus className="h-4 w-4" /> Nuevo Usuario
+              </Button>
+            }
+          />
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Crear Nuevo Usuario</DialogTitle>
@@ -317,7 +319,7 @@ export default function UsersPage() {
                           <span className="text-xs text-muted-foreground italic">No registrado</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-muted-foreground">
+                      <td className="px-6 py-4 text-muted-foreground" suppressHydrationWarning>
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">

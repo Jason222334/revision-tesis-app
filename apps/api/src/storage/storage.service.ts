@@ -4,7 +4,8 @@ import {
   S3Client, 
   PutObjectCommand, 
   GetObjectCommand, 
-  HeadBucketCommand 
+  HeadBucketCommand,
+  DeleteObjectCommand 
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -118,6 +119,19 @@ export class StorageService implements OnModuleInit {
       return Buffer.from(byteArray);
     } catch (error) {
       throw new InternalServerErrorException('Error downloading file from storage: ' + error.message);
+    }
+  }
+
+  async deleteFile(fileName: string): Promise<void> {
+    try {
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: fileName,
+        })
+      );
+    } catch (error) {
+      console.error('Delete File Error:', error);
     }
   }
 }

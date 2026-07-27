@@ -88,4 +88,43 @@ export class SubmissionsService {
       data: { status },
     });
   }
+
+  async delete(id: string) {
+    const submission = await this.prisma.submission.findUnique({
+      where: { id },
+    });
+
+    if (!submission) {
+      throw new NotFoundException(`Submission with ID ${id} not found`);
+    }
+
+    // 1. Delete findings associated with this submission's evaluation
+    const evaluation = await this.prisma.evaluation.findUnique({
+      where: { submissionId: id },
+    });
+
+    if (evaluation) {
+      await this.prisma.finding.deleteMany({
+        where: { evaluationId: evaluation.id },
+      });
+      await this.prisma.evaluation.delete({
+        where: { id: evaluation.id },
+      });
+    }
+
+    // 2. Delete document chunks associated with this submission
+    await this.prisma.documentChunk.deleteMany({
+      where: { submissionId: id },
+    });
+
+    // 3. Delete the file from MinIO storage
+    if (submission.fileUrl) {
+      await this.storageService.deleteFile(submission.fileUrl);
+    }
+
+    // 4. Delete the submission record from the database
+    return this.prisma.submission.delete({
+      where: { id },
+    });
+  }
 }

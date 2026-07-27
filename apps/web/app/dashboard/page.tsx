@@ -16,7 +16,8 @@ import { buttonVariants } from "@/components/ui/button"
 
 async function getStats() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stats`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+    const res = await fetch(`${apiUrl}/stats`, {
       cache: 'no-store'
     })
     if (!res.ok) return null
@@ -175,7 +176,7 @@ export default async function DashboardPage() {
                               <span>•</span>
                               <span>Versión {submission.version}</span>
                               <span>•</span>
-                              <span>{new Date(submission.submittedAt).toLocaleDateString()}</span>
+                              <span suppressHydrationWarning>{new Date(submission.submittedAt).toLocaleDateString()}</span>
                             </div>
                           </div>
                         </div>
